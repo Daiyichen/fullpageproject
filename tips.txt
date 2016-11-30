@@ -1,0 +1,103 @@
+#fullpageproject
+jquery.fullPage.js： https://github.com/alvarotrigo/fullPage.js
+使用jquery.fullPage.js开发全屏展示，遇到的问题：
+1. fullpage 包含slide的功能，但是没有自动轮播的设置，这里手动设置模拟滚动：
+					clearInterval(timer);             
+                    timer = setInterval(function () {
+                        $.fn.fullpage.moveSlideRight();
+                    }, 4000);
+2. 参数需要设置为verticalCentered: false
+   默认是true, 这里如果不设置false,会有ｂｕｇ，首屏幕第一次进入时没有动画效果，不知道这个是哪里影响的。　
+   如果为true的情况，会使内容居中，所以这里在slide处手动添加了布局到底部的情况。
+   //外层容器
+   .section2 .slide {
+    display: table;
+    table-layout: fixed;
+	}
+   
+   //内层
+   .section2 .fp-tableCell {
+    height: 100%;
+    vertical-align: bottom;
+    display: table-cell;
+}
+3. 由于该插件没有动态删除、添加section的接口，所以这里自己手动从Dom里删除一个section, 之后在重新添加
+
+4. 由于fullpage的slide 下一个下一个的动画效果是从右-》左的,即transform: translate3d(0px, 0px, 0px)到transform: translate3d(-1920px, 0px, 0px)，
+ 而我这里要实现的是动画从左侧进入，从右侧消失，这里是通过css3的动画控制的
+ 
+.section2 .slide .intro{
+    margin-bottom:5%;
+    margin-left:100%;
+    opacity: 0;
+    transition: all 0.7s;
+    animation: slideOut 0.7s;
+    -moz-animation: slideOut 0.7s;
+    -webkit-animation: slideOut 0.7s;
+    -o-animation: slideOut 0.7s;
+
+}
+
+/*消失*/
+@keyframes slideOut {
+    from {
+        transform: translate3d(0, 0px, 0px);
+        -webkit-transform: translate3d(0, 0px, 0px);
+        -ms-transform:translate3d(0, 0px, 0px);
+    }
+    to {
+        transform: translate3d(3840px, 0px, 0px);
+        -webkit-transform: translate3d(3840px, 0px, 0px);
+        -ms-transform:translate3d(3840px, 0px, 0px);
+    }
+}
+
+@-webkit-keyframes slideOut
+{
+    from {
+        transform: translate3d(0, 0px, 0px);
+        -webkit-transform: translate3d(0px, 0px, 0px);
+    }
+    to {
+        transform: translate3d(3840px, 0px, 0px);
+        -webkit-transform: translate3d(3840px, 0px, 0px);
+    }
+}
+
+/*显示*/
+.section .slide.active .intro{
+    opacity: 1;
+    margin-left: 0;
+    animation: slideRun 0.7s;
+    -moz-animation: slideRun 0.7s;
+    -webkit-animation: slideRun 0.7s;
+    -o-animation: slideRun 0.7s;
+   /* transition-delay: 0.7s;*/
+}
+
+@keyframes slideRun
+{
+    from {
+        transform: translate3d(-3840px, 0px, 0px);
+        -webkit-transform: translate3d(-3840px, 0px, 0px);
+        -ms-transform: translate3d(-3840px, 0px, 0px);
+    }
+    to {
+        transform: translate3d(0px, 0px, 0px);
+        -webkit-transform: translate3d(0px, 0px, 0px);
+        -ms-transform: translate3d(0px, 0px, 0px);
+    }
+}
+
+
+@-webkit-keyframes slideRun
+{
+    from {
+        transform: translate3d(-3840px, 0px, 0px);
+        -webkit-transform: translate3d(-3840px, 0px, 0px);
+    }
+    to {
+        transform: translate3d(0px, 0px, 0px);
+        -webkit-transform: translate3d(0px, 0px, 0px);
+    }
+}
